@@ -19,15 +19,17 @@ const requestHandler = (req, res) => {
       body.push(chunk);
     });
     return req.on("end", () => {
+      // console.log(body[0].toString()) // это тоже возвращает то, что нужно
       const parsedBody = Buffer.concat(body).toString();
       const message = parsedBody.split("=")[1];
-      fs.writeFile("message.txt", message, (err) => {
+      fs.writeFile("message.txt", message, () => {
         res.statusCode = 302;
         res.setHeader("Location", "/");
         return res.end();
       });
     });
   }
+
   res.setHeader("Content-Type", "text/html");
   res.write("<html>");
   res.write("<head><title>My page</title></head>");
@@ -42,7 +44,7 @@ const requestHandler = (req, res) => {
 // module.exports.text = "Some text";
 
 exports.handler = requestHandler;
-exports.text = "Some text";
+exports.text = "Some text 111";
 
 // module.exports = {
 //   handler: requestHandler,
