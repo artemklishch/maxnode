@@ -1,0 +1,12 @@
+<main class="userslist">
+    <h1 class="userslist__title">Users List</h1>
+    {{#if users.length}}
+    <ol class="userslist__list">
+        {{#each users}}
+        <li class="userslist__list-item">{{username}}</li>
+        {{/each}}
+    </ol>
+    {{else}}
+    <h3>No users here</h3>
+    {{/if}}
+</main>

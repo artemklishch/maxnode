@@ -1,0 +1,34 @@
+.userform {
+  background-color: coral;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  height: 100vh;
+  width: 100%;
+  align-items: center;
+}
+.userform__title {
+  text-align: center;
+}
+.userform__form {
+  background-color: #fff;
+  padding: 20px 10px;
+  width: 50%;
+  border-radius: 10px;
+}
+.userform__form input,
+.userform__form label {
+  display: block;
+  width: 50%;
+}
+.userform__form button,
+.userform__form button:hover {
+  display: inline-block;
+  border: none;
+  outline: none;
+  background-color: red;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  margin-top: 20px;
+}

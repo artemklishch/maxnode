@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{pageTitle}}</title>
+    <link rel="stylesheet" href="/index.css">
+    <link rel="stylesheet" href="/navigation.css">
+    {{#if isUsersListPage}}
+    <link rel="stylesheet" href="/userslist.css">
+    {{/if}}
+    {{#if isUserFormPage}}
+    <link rel="stylesheet" href="/userform.css">
+    {{/if}}
+</head>
+
+<body>
+    {{> navigation}}
+    {{{ body }}}
+</body>
+
+</html>

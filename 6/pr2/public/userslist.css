@@ -1,0 +1,14 @@
+.userslist {
+  background-color: coral;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  height: 100vh;
+  width: 100%;
+}
+.userslist__list {
+  margin: 0;
+  padding: 10px;
+  width: 60%;
+}

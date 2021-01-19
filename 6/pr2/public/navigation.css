@@ -1,0 +1,22 @@
+.pagesnav {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  background-color: red;
+  color: #fff;
+  padding: 1rem 0;
+}
+.pagesnav__pages {
+  display: flex;
+}
+.pagesnav__pages_item {
+  margin-right: 20px;
+  list-style: none;
+}
+.pagesnav__pages_item a,
+.pagesnav__pages_item a:hover,
+.pagesnav__pages_item a:active {
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+}
