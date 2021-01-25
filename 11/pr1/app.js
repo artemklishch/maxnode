@@ -8,6 +8,8 @@ const Product = require("./models/product");
 const User = require("./models/user");
 const Cart = require("./models/cart");
 const CartItem = require("./models/cart-item");
+const Order = require("./models/order");
+const OrderItem = require("./models/order-item");
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 
@@ -42,6 +44,9 @@ User.hasOne(Cart); // пользователь имеет только одну 
 Cart.belongsTo(User); // корзина принадлежит пользователю
 Cart.belongsToMany(Product, { through: CartItem }); // в корзине может быть много продуктов
 Product.belongsToMany(Cart, { through: CartItem }); // продукт может быть в разных корзинах
+Order.belongsTo(User);
+User.hasMany(Order);
+Order.belongsToMany(Product, { through: OrderItem }); // в таблице OrderItem добавляется поле productId, orderId
 // очень все это не понятно
 
 sequelize
@@ -56,7 +61,7 @@ sequelize
   })
   .then((user) => {
     // console.log(user);
-    return user.createCart();
+    return user.createCart(); // создает корзину пользователя, не понятно как 
   })
   .then(() => {
     app.listen(3000);
