@@ -53,16 +53,19 @@ exports.getCart = (req, res, next) => {
   req.user
     .getCart() // не понятно почему это здесь
     .then((cart) => {
-      return cart
-        .getProducts()
-        .then((products) => {
-          res.render("shop/cart", {
-            path: "/cart",
-            pageTitle: "Your Cart",
-            products: products,
-          });
-        })
-        .catch((err) => console.log(err));
+      return (
+        cart
+          .getProducts() // это срабатывает, т.к у нас здесь есть соединительный мост,
+          //модель, объединяющая внешние ключи cartId, productId
+          .then((products) => {
+            res.render("shop/cart", {
+              path: "/cart",
+              pageTitle: "Your Cart",
+              products: products,
+            });
+          })
+          .catch((err) => console.log(err))
+      );
     })
     .catch((err) => console.log(err));
 };
@@ -73,9 +76,16 @@ exports.postCart = (req, res, next) => {
   let newQuantity = 1;
   req.user
     .getCart()
+    // здесь достаем из таблицы конкретную корзину пользователя
     .then((cart) => {
       fetchedCart = cart;
       return cart.getProducts({ where: { id: prodId } });
+      // это означает, что мы в конкретной корзине ищем продукт по соответствующему id
+      // т.к. здесь есть содеинительный мост, содержащий внешний ключ productId,
+      // проверяем в таблице cartItems, а не в таблице products, наличие соответствующего продукта
+      // под капотом происходит посик с сопоставлением cartId, к-й уже есть благодаря тому, что выше мы
+      // методом getCart получили конкретную корзину
+      // и с сопоставлением productId, к-й мы передаем в метод getProducts
     })
     .then((products) => {
       let product;
@@ -91,7 +101,9 @@ exports.postCart = (req, res, next) => {
     })
     .then((pr) => {
       return fetchedCart.addProduct(pr, { through: { quantity: newQuantity } });
-      // неясно как это тут работает
+      // добавляем в корзину продукт с помощью метода из сквалайза
+      // в корзине появляется продукт, в таблице cartItems благодаря
+      // { through: { quantity: newQuantity } } маняется число (quantity)
     })
     .then(() => res.redirect("/cart"))
     .catch((err) => console.log(err));
@@ -140,7 +152,7 @@ exports.postOrder = (req, res, next) => {
 
 exports.getOrders = (req, res, next) => {
   req.user
-    .getOrders({ include: ["products"] }) // т.к. в массив не попадает orderItem 
+    .getOrders({ include: ["products"] }) // т.к. в массив не попадает orderItem
     .then((orders) => {
       res.render("shop/orders", {
         path: "/orders",

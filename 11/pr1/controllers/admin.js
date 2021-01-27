@@ -56,7 +56,7 @@ exports.getEditProduct = (req, res, next) => {
       .catch((err) => console.log(err));
   });
   // а здесь мы благодаря настроенным зависимостям между моделями
-  // вызываем метод/раут getProducts, что определен здесь в файле внизу
+  // вызываем метод/раут getProducts
 
   // Product.findByPk(prodId)
   // .then((product) => {

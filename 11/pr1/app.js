@@ -20,7 +20,7 @@ app.set("views", "views");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
-app.use((req, res, next) => {
+app.use((req, res, next) => { 
   User.findByPk(1)
     .then((user) => {
       req.user = user;
@@ -40,20 +40,32 @@ app.use(errorController.get404);
 // с одной моделью можно было однговременно работать с данными из структуры другой модели
 Product.belongsTo(User, { constrains: true, onDelete: "CASCADE" }); // пользовавтель может использовать данные по структуре модели продукта
 User.hasMany(Product); // ползователь может иметь разные продукты
+// one-to-many используется парами
+
 User.hasOne(Cart); // пользователь имеет только одну корзину
 Cart.belongsTo(User); // корзина принадлежит пользователю
+// one-to-one используется парами
+
 Cart.belongsToMany(Product, { through: CartItem }); // в корзине может быть много продуктов
 Product.belongsToMany(Cart, { through: CartItem }); // продукт может быть в разных корзинах
+// many-to-many; можно использовать одно выраждение, но лучше использовать парами
+
 Order.belongsTo(User);
 User.hasMany(Order);
+// one-to-many используется парами
+
 Order.belongsToMany(Product, { through: OrderItem }); // в таблице OrderItem добавляется поле productId, orderId
-// очень все это не понятно
+// достаточно написать один раз Order.belongsToMany(Product, { through: OrderItem }) и в таблице OrderItem
+// появятся два внешних ключа, однако часто используется пара выражений, т.е. к тому, что есть,
+// можно также дополнительно написать с обратным расположением моделей
+// Product.belongsToMany(Order, { through: OrderItem }) , чтоб лучше это использовать
+// many-to-many; можно использовать одно выраждение, но лучше использовать парами
 
 sequelize
   // .sync({ force: true })
   .sync()
   .then(() => User.findByPk(1))
-  .then((user) => {
+  .then((user) => {           
     if (!user) {
       return User.create({ name: "Bob", email: "devartemklishch@gmail.com" });
     }
@@ -61,7 +73,7 @@ sequelize
   })
   .then((user) => {
     // console.log(user);
-    return user.createCart(); // создает корзину пользователя, не понятно как 
+    return user.createCart(); // создает корзину пользователя, спец метод благодаря настройкам взаимосвязей
   })
   .then(() => {
     app.listen(3000);
