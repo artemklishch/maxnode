@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { validationResult } = require("express-validator");
 const Post = require("../models/post");
+const User = require("../models/user");
 
 exports.getPosts = (req, res, next) => {
   const currentPage = req.query.page || 1;
@@ -21,13 +22,11 @@ exports.getPosts = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
-      res
-        .status(200)
-        .json({
-          message: "Posts are fetched successfully",
-          posts: posts,
-          totalItems: totalItems,
-        });
+      res.status(200).json({
+        message: "Posts are fetched successfully",
+        posts: posts,
+        totalItems: totalItems,
+      });
     })
     .catch((err) => {
       if (!err.statusCode) {
@@ -61,21 +60,33 @@ exports.createPost = (req, res, next) => {
   if (imageUrl.includes("\\")) {
     imageUrl = imageUrl.split("\\").join("/");
   }
+  let creator;
   const title = req.body.title;
   const content = req.body.content;
   const post = new Post({
     title: title,
     content: content,
     imageUrl: imageUrl,
-    creator: { name: "Tom" },
+    creator: req.userId, // эти данные есть, т.к. срабатывает функция из файла is-auth.js
+    // и req.userId - это строка, но мангуз преобразует ее в объект, т.к. монгодб создаает айдишник в виде объекта
   });
   post
     .save()
     .then((result) => {
-      console.log(result);
+      return User.findById(req.userId);
+    })
+    .then((user) => {
+      creator = user;
+      user.posts.push(post); // здесь мы добавляем в массив не обек поста, а id поста, т.к.
+      // в модели пользователя мы сделали ссылку на посты и обозначили тип - Schema.Types.ObjectId
+      // мангус преобразует объект поста в идентификатор
+      return user.save();
+    })
+    .then((result) => {
       res.status(201).json({
         message: "Post created successfully!",
-        post: result,
+        creator: { _id: creator._id, name: creator.name },
+        post: post,
       });
     })
     .catch((err) => {
@@ -89,6 +100,7 @@ exports.createPost = (req, res, next) => {
 exports.getPost = (req, res, next) => {
   const postId = req.params.postId;
   Post.findById(postId)
+    .populate("creator")
     .then((post) => {
       if (!post) {
         const error = new Error("Could not find post.");
@@ -136,6 +148,11 @@ exports.updatePost = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
+      if (post.creator.toString() !== req.userId) {
+        const error = new Error("Not authorized.");
+        error.statusCode = 403;
+        throw error;
+      }
       if (imageUrl !== post.imageUrl) {
         clearImage(post.imageUrl);
       }
@@ -164,14 +181,26 @@ exports.deletePost = (req, res, next) => {
         error.statusCode = 404;
         throw error;
       }
+      if (post.creator.toString() !== req.userId) {
+        const error = new Error("Not authorized.");
+        error.statusCode = 403;
+        throw error;
+      }
       // checked logged in user
       clearImage(post.imageUrl);
       return Post.findByIdAndRemove(postId);
     })
     .then((result) => {
-      console.log(result);
-      res.status(200).json({ message: "Deleted post" });
+      return User.findById(req.userId);
     })
+    .then((user) => {
+      // user.posts = user.posts.filter((p) => p.toString() !== postId.toString());
+      user.posts.pull(postId); // этот метод мангуза - pull(postId) - удаляет из массива
+      // тот элемент, к-й соответствует удаленному посту
+      // т.е. можно исползовать вместо фильтра, что выше
+      return user.save();
+    })
+    .then(() => res.status(200).json({ message: "Deleted post" }))
     .catch((err) => {
       if (!err.statusCode) {
         err.statusCode = 500;
