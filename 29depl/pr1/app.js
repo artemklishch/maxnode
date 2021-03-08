@@ -44,8 +44,10 @@ const accessLogStream = fs.createWriteStream(
 ); // для настроойки логирования, передается в morgan
 // flags: "a" - значит, что лог добавляется в конец списка
 // создает файл по заданному пути и после передачи в morganтуда записываются логи
-const privateKey = fs.readFileSync("server.key");
-const certificate = fs.readFileSync("server.cert");
+
+// const privateKey = fs.readFileSync("server.key");
+// const certificate = fs.readFileSync("server.cert");
+// героку не поддерживает ключи
 
 const app = express();
 app.use(helmet()); // для защиты, нужно ставить перед мидлвеарами раутами
