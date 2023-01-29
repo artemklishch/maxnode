@@ -1,0 +1,16 @@
+<%- include('../includes/head.ejs') %>
+    </head>
+
+    <body>
+        <%- include('../includes/navigation.ejs') %>
+        <main class="centered" style="display: flex;flex-direction: column; align-items: center;">
+            <div style="width: 50%;">
+                <h1><%= product.title %></h1>
+                <hr />
+                <div><img class="card__image" src="<%= product.imageUrl %>" alt="<%= product.title %>"></div>
+                <h2><%= product.price %></h2>
+                <p><%= product.description %></p>
+                <%- include('../includes/add-to-cart.ejs') %>
+            </div>
+        </main>
+        <%- include('../includes/end.ejs') %>
